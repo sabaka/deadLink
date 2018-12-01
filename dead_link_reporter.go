@@ -10,9 +10,9 @@ import (
 
 func main() {
 	fmt.Println("Execution Started")
-	pathToFile := os.Args[1:]
+	pathToFile := getPathToFIle()
 
-	fileHandler, err := os.Open(pathToFile[0])
+	fileHandler, err := os.Open(pathToFile)
 	check(err)
 	defer fileHandler.Close()
 
@@ -32,7 +32,17 @@ func main() {
 	}
 
 	fmt.Println("Execution finished")
+	bufio.NewScanner(os.Stdin).Scan()
 
+
+}
+
+func getPathToFIle() string {
+	if len(os.Args) > 1 {
+		return os.Args[1:][0]
+	} else {
+		return "links.lst"
+	}
 }
 
 func check(err error) {
