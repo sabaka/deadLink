@@ -3,37 +3,33 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/sabaka/fileHelper"
 	"net/http"
 	"net/url"
 	"os"
 )
 
 func main() {
+
 	fmt.Println("Execution Started")
 	pathToFile := getPathToFIle()
 
-	fileHandler, err := os.Open(pathToFile)
-	check(err)
-	defer fileHandler.Close()
-
-	scanner := bufio.NewScanner(fileHandler)
-	for scanner.Scan() {
-		link := scanner.Text()
-		_, parsingErr := url.ParseRequestURI(link)
+	fileHelper.DoOnEachLine(pathToFile,func(line string) {
+		_, parsingErr := url.ParseRequestURI(line)
 
 		if parsingErr != nil {
-			fmt.Printf("WARN: something is wrong with URL: %s\n", link)
-			continue
+			fmt.Printf("WARN: something is wrong with URL: %s\n", line)
+			return
 		}
-		_, getErr := http.Get(link)
+		_, getErr := http.Get(line)
 		if getErr != nil {
-			fmt.Printf("ERROR: Following link can't be opened: %s\nError:%v\n", link, getErr)
+			fmt.Printf("ERROR: Following link can't be opened: %s\nError:%v\n", line, getErr)
 		}
-	}
+	})
 
 	fmt.Println("Execution finished")
+	// Wait for any key to prevent console closure
 	bufio.NewScanner(os.Stdin).Scan()
-
 
 }
 
@@ -45,8 +41,3 @@ func getPathToFIle() string {
 	}
 }
 
-func check(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
